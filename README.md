@@ -3,5 +3,7 @@ Developed a version of the classic 2048 game in C(using the ncurses library) fea
 ![image](https://github.com/user-attachments/assets/99699ab3-29ec-40ec-9204-b16d63d1018f)
 # Prerequisites
 C Compiler: Ensure that a C compiler like gcc is installed.
-ncurses library: The game uses the ncurses library for terminal-based user interfaces. Install it using:
+
+ncurses library: The game uses the ncurses library for terminal-based user interfaces.
+
 sudo apt-get install libncurses5-dev libncursesw5-dev
