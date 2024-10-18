@@ -6,4 +6,7 @@ C Compiler: Ensure that a C compiler like gcc is installed.
 
 ncurses library: The game uses the ncurses library for terminal-based user interfaces.
 
-sudo apt-get install libncurses5-dev libncursesw5-dev
+``` sudo apt-get install libncurses5-dev libncursesw5-dev ```
+# Instalation
+``` git clone https://github.com/Ioana-Maraloi/2048-game.git ```
+
