@@ -14,7 +14,7 @@ sudo apt-get install libncurses5-dev libncursesw5-dev
 git clone https://github.com/Ioana-Maraloi/2048-game.git
 cd 2048-game
 make
-./2048-game
+./2048
 ```
 # How to play
 **Objective:** The goal of the game is to combine tiles with the same number to reach the number 2048.
