@@ -22,25 +22,26 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width,
   wattroff(win, color);
   refresh();
 }
-void print_menu(WINDOW *menu_window, int highlight) {
+void print_menu(WINDOW *menu_window, int highlight, int width) {
   char choices[3][9] = {"New Game", "Resume", "Quit"};
   int i;
   int x = 5, y = 10;
-  box(menu_window, 0, 0);
-  mvwprintw(menu_window, 3, x, "        ____   ___  _  _    ___ ");
-  mvwprintw(menu_window, 4, x, "       |___ | / _ | || |   ( _ )");
-  mvwprintw(menu_window, 5, x, "         __) | | | | || |_ / _ \\ ");
-  mvwprintw(menu_window, 6, x, "        / __/| |_| |__   _| (_) |");
-  mvwprintw(menu_window, 7, x, "       |_____| |__/   |_|  \\___/ ");
-  x = 3;
+  box(menu_window, 0, 0); 
+  mvwprintw(menu_window, 2, x, "                          ____   ___  _  _    ___ ");
+  mvwprintw(menu_window, 3, x, "                         |___ | / _ || || |  ( _ )");
+  mvwprintw(menu_window, 4, x, "                           __) | | | | || |_ / _ \\ ");
+  mvwprintw(menu_window, 5, x, "                          / __/| |_| |__   _| (_) |");
+  mvwprintw(menu_window, 6, x, "                         |_____| |__/   |_|  \\___/ ");
   for (i = 0; i < 3; i++) {
+    int spaces = width - strlen(choices[i]);
+    spaces = spaces / 2;
     if (highlight == i + 1) {
       wattron(menu_window, A_REVERSE);
-      mvwprintw(menu_window, y, x, "%s", choices[i]);
+      mvwprintw(menu_window, y,  spaces, "%s", choices[i]);
       wattroff(menu_window, A_REVERSE);
 
     } else
-      mvwprintw(menu_window, y, x, "%s", choices[i]);
+      mvwprintw(menu_window, y , spaces, "%s", choices[i]);
     ++y;
   }
   wbkgd(menu_window, COLOR_PAIR(2));
@@ -58,7 +59,6 @@ void print_pannel(WINDOW *pannel, int *score) {
   mvwprintw(pannel, 6, 10, " KEY-RIGHT");
   mvwprintw(pannel, 7, 1, " press 'u' for undo ");
   mvwprintw(pannel, 8, 1, " press 'q' for quit ");
-  //box(pannel, 0, 0);
   wbkgd(pannel, COLOR_PAIR(2));
   wrefresh(pannel);
 }
@@ -68,7 +68,7 @@ void print_number(WINDOW *game, int game_matrix[4][4]) {
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
       if (game_matrix[i][j] != 0) {
-        // numar cate cifre are elem matricei
+        // check how many digits does the number have
         nr = game_matrix[i][j];
         while (nr) {
           nr = nr / 10;
@@ -161,13 +161,12 @@ void random_number(int game_matrix[4][4]) {
       }
   if (k != 0) {
     srand(time(NULL));
-    // aleg o pozitie random
+    // selecting a random position
     int poz_random = rand() % k;
     int m = empty[poz_random][0];
     int n = empty[poz_random][1];
     int value = rand() % 3;
-    // aleg un nr random si daca e de forma 3k sau 3k+1
-    // pun 2
+    // choosing a random number and putting 2 or 4
     if (value == 0 || value == 1)
       game_matrix[m][n] = 2;
     else if (value == 2)
@@ -178,7 +177,7 @@ void move_down(int game_matrix[4][4], int *score) {
   int i, j, k;
   for (j = 0; j < 4; j++) {
     for (i = 2; i >= 0; i--) {
-      // asez in partea de jos toate elem != 0
+      // moving al the non-zero elements to the bottom
       if (game_matrix[i][j] != 0) {
         k = i;
         while (k < 3 && game_matrix[k + 1][j] == 0) {
@@ -190,7 +189,7 @@ void move_down(int game_matrix[4][4], int *score) {
     }
 
     for (i = 2; i >= 0; i--) {
-      // unesc numerele egale si permut restul numerelor in jos
+      // uniting all equal numbers and moving the rest downwards
       if (game_matrix[i + 1][j] == game_matrix[i][j]) {
         game_matrix[i + 1][j] = 2 * game_matrix[i][j];
         *score = *score + game_matrix[i + 1][j];
@@ -209,7 +208,7 @@ void move_up(int game_matrix[4][4], int *score) {
   int i, j, k;
   for (j = 0; j < 4; j++) {
     for (i = 1; i < 4; i++) {
-      // asez sus elem !=0
+      // moving al the non-zero elements to the bottom
       if (game_matrix[i][j] != 0) {
         k = i;
         while (k > 0 && game_matrix[k - 1][j] == 0) {
@@ -237,7 +236,7 @@ void move_up(int game_matrix[4][4], int *score) {
 void move_left(int game_matrix[4][4], int *score) {
   int i, j, k;
   for (i = 0; i < 4; i++) {
-    // permut spre stanga toate elementele dif de zero
+    // moving al the non-zero elements to the left
     for (j = 1; j < 4; j++) {
       if (game_matrix[i][j] != 0) {
         k = j;
@@ -248,7 +247,7 @@ void move_left(int game_matrix[4][4], int *score) {
         }
       }
     }
-    // unesc elementele egale si permut restul elem spre stanga
+    // uniting equal elements and moving the rest to the left
     for (j = 1; j < 4; j++) {
       if (game_matrix[i][j] == game_matrix[i][j - 1]) {
         game_matrix[i][j - 1] = 2 * game_matrix[i][j - 1];
@@ -269,7 +268,7 @@ void move_left(int game_matrix[4][4], int *score) {
 void move_right(int game_matrix[4][4], int *score) {
   int i, j, k;
   for (i = 0; i < 4; i++) {
-    // permut spre dreapta toate elementele dif de zero
+    // moving al the non-zero elements to the right
     for (j = 2; j >= 0; j--) {
       if (game_matrix[i][j] != 0) {
         k = j;
@@ -280,7 +279,7 @@ void move_right(int game_matrix[4][4], int *score) {
         }
       }
     }
-    // unesc elementele egale si permut restul elem spre dreapta
+    // uniting equal elements and moving the rest to the right
     for (j = 2; j >= 0; j--) {
       if (game_matrix[i][j] == game_matrix[i][j + 1]) {
         game_matrix[i][j + 1] = 2 * game_matrix[i][j];
@@ -345,16 +344,15 @@ void move_alone(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
   move_up(copy1_matrix, &score1);
   for (i = 0; i < 4; i++)
     for (j = 0; j < 4; j++) {
-      // verific daca matricea copiata si mutata
-      // e egala cu matricea initiala
-      // numar elementele egale cu k
+      // check if the copied and moved matrix is equal 
+      // to the initial matrix 
+      // using k to count the elements that are equal
       if (copy1_matrix[i][j] == game_matrix[i][j]) k++;
     }
-  // daca sunt egale matricele, inseamna ca mutarea nu este valida
+  // if the matrixes are equal, the move is not valid
   if (k == 16) empty[0] = 0;
-  // daca matricele nu sunt egale,
-  // atunci e mutare valida si
-  // numar cate zero uri sunt in matrice dupa mutare
+  // if the matrixes are not equal, the move is valid and
+  // i count how many zeros are in the copy after the movement
   else
     for (i = 0; i < 4; i++)
       for (j = 0; j < 4; j++) {
@@ -421,7 +419,7 @@ void move_alone(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
   check_winner(game_matrix, winner);
 }
 void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
-             WINDOW *winner, WINDOW *menu_window, int highlight) {
+             WINDOW *winner, WINDOW *menu_window, int highlight, int width) {
   clear();
   int i, j, k;
   int score_copy;
@@ -449,6 +447,7 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
   wtimeout(game, 10000);
   while (FOREVER) {
     if (c != ERR) {
+      // move all the squares UP
       if (c == KEY_UP) {
         for (i = 0; i < 4; i++)
           for (j = 0; j < 4; j++) {
@@ -474,7 +473,7 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
           check_winner(game_matrix, winner);
         }
       }
-      // mut toate patratelele in jos
+      // move all the squares DOWN
       if (c == KEY_DOWN) {
         for (i = 0; i < 4; i++)
           for (j = 0; j < 4; j++) {
@@ -500,7 +499,7 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
           check_winner(game_matrix, winner);
         }
       }
-      // mut toate patratelele in STANGA
+      // move all the squares to the LEFT
       if (c == KEY_LEFT) {
         for (i = 0; i < 4; i++)
           for (j = 0; j < 4; j++) {
@@ -526,7 +525,7 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
           check_winner(game_matrix, winner);
         }
       }
-      // mut toate patratelele in DREAPTA
+      // move all the squares to the RIGHT
       if (c == KEY_RIGHT) {
         for (i = 0; i < 4; i++)
           for (j = 0; j < 4; j++) {
@@ -562,11 +561,11 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
       if (c == 'q') {
         clear();
         refresh();
-        print_menu(menu_window, highlight);
+        print_menu(menu_window, highlight, width);
         break;
       }
     }
-    // daca trec 10 secunde si nu am apasat nicio sageata
+    // if the player didn`t press an arrow for 10 seconds 
     else {
       move_alone(game_matrix, score, game, pannel, winner);
       for (i = 0; i < 4; i++)
@@ -578,7 +577,7 @@ void newgame(int game_matrix[4][4], int *score, WINDOW *game, WINDOW *pannel,
 }
 int main() {
   WINDOW *menu_window;
-  int ymax, xmax;  // lungimea si latimea terminalului
+  int ymax, xmax;  // length and width of the terminal
   int n_choices = 3;
   int highlight = 0;
   initscr();
@@ -600,13 +599,12 @@ int main() {
   init_pair(11, COLOR_GREEN, COLOR_BLACK);
   init_pair(12, COLOR_MAGENTA, COLOR_BLACK);
 
-  getmaxyx(stdscr, ymax, xmax);  // lungimea si latimea terminalului
+  getmaxyx(stdscr, ymax, xmax);  // length and width of the terminal
   int height = ymax / 2, width = xmax / 2, starty = ymax / 4, startx = xmax / 4;
   menu_window = newwin(height, width, starty, startx);
 
-  print_in_middle(menu_window, 1, 0, width, "2048io", COLOR_PAIR(1));
-  mvwhline(menu_window, 2, 1, ACS_HLINE, width - 2);
-  print_menu(menu_window, highlight);
+  mvwhline(menu_window, 8, 1, ACS_HLINE, width - 2);
+  print_menu(menu_window, highlight, width);
 
   int starty_game = (ymax - HEIGHT_GAME) / 2;
   int startx_game = xmax / 2 - HEIGHT_GAME;
@@ -628,7 +626,7 @@ int main() {
       } else {
         --highlight;
       }
-      print_menu(menu_window, highlight);
+      print_menu(menu_window, highlight, width);
     }
     if (ch == KEY_DOWN) {
       if (highlight == n_choices) {
@@ -636,11 +634,11 @@ int main() {
       } else {
         highlight++;
       }
-      print_menu(menu_window, highlight);
+      print_menu(menu_window, highlight, width);
     }
-    // daca apas enter
+    // if i press ENTER
     if (ch == 10) {
-      // daca apas enter pe NEW GAME
+      // if i press NEW GAME
       if (highlight == 1) {
         clear();
         refresh();
@@ -650,9 +648,9 @@ int main() {
         random_number(game_matrix);
         random_number(game_matrix);
         newgame(game_matrix, &score, game, pannel, winner, menu_window,
-                highlight);
+                highlight, width);
       }
-      // daca apas enter pe RESUME
+      // if i press RESUME
       if (highlight == 2) {
         for (i = 0; i < 4; i++)
           for (j = 0; j < 4; j++) s = s + game_matrix[i][j];
@@ -660,10 +658,10 @@ int main() {
           clear();
           refresh();
           newgame(game_matrix, &score, game, pannel, winner, menu_window,
-                  highlight);
+                  highlight, width);
         }
       }
-      // daca apas enter pe quit
+      // if i press ENTER
       if (highlight == 3) break;
     }
     ch = wgetch(menu_window);
